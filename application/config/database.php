@@ -98,7 +98,8 @@ $db['default'] = array(
 	'encrypt' => FALSE,
 	'compress' => FALSE,
 	'stricton' => FALSE,
-	'failover' => array()
+	'failover' => array(),
+	'active_r' => TRUE
 );
 
 /* End of file database.php */
