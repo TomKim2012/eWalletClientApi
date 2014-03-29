@@ -36,7 +36,7 @@ class Paybill extends CI_Controller{
       $user = $this->input->get('user');
       $pass = $this->input->get('pass');
    
-       if($user=='pioneerfsa' && $pass =='financial@2013'){
+       if($user=='mTransport' && $pass =='transport@2014'){
            if($inp['id']){
            $transaction_registration = $this->ezauth->record_transaction($inp); 
            echo $transaction_registration;
