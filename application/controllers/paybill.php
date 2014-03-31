@@ -6,8 +6,10 @@ require APPPATH . '/libraries/AfricasTalkingGateway.php';
 class Paybill extends CI_Controller {
 	function Paybill() {
 		parent::__construct ();
+		date_default_timezone_set ( 'Africa/Nairobi' );
 		$this->load->library ( 'CoreScripts' );
 		$this->load->model ( 'Paybill_model', 'ezauth' );
+		$this->load->model ( 'Member_model','members' );
 		$this->load->helper ( 'file' );
 	}
 	function index() {
@@ -45,9 +47,22 @@ class Paybill extends CI_Controller {
 				echo $transaction_registration;
 				
 				//Send SMS to Client
-				$message = "Thank-you for your payment of Kshs ".$inp['mpesa_amt'].
-							"(txn code:".$inp['mpesa_code']."). Your fare has been received";
-				$sms_feedback = $this->corescripts->_send_sms2 ('0729472421', $message );
+				$tDate = date ("d/m/Y");
+				$tTime = date("h:i A");
+				$vehicleNo = $this->members->getVehicleNo_by_id($inp['business_number']);
+				$message =  "Dear ".$inp['mpesa_sender'].
+							",Your fare of Kshs. ".$inp['mpesa_amt'].
+							" has been received on ".$tDate." at ".$tTime.
+							".Thank-you for travelling with saccoName ( ".$vehicleNo.
+							" ). Customer care no. 0729472421";
+
+				$sms_feedback = $this->corescripts->_send_sms2 (substr( $inp['mpesa_msisdn'], 2 ), $message );
+
+				if($sms_feedback){
+					echo ".Sms sent to customer";
+				}else{
+					echo ".SMS not sent to customer";
+				}
 				
 			} else {
 				echo "FAIL|No transaction details were sent";

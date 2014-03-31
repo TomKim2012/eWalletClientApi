@@ -33,7 +33,17 @@ class Member_Model extends CI_Model {
 		return $memberData;
 	}
 	
-	
+	function getVehicleNo_by_id($businessNo){
+		$this->db->query('Use naekana');
+		$this->db->select('VehicleNo');
+		$this->db->where ( array (
+				'businessNo' => $businessNo,
+				'Blocked'=>0
+		) );
+		$query = $this->db->get('MemberVehicleNo');
+
+		return $query->row()->VehicleNo;
+	}
 	
 	function getVehicles($memberNo){
 		$this->db->where ( array (
@@ -65,7 +75,7 @@ class Member_Model extends CI_Model {
 			$this->db->where ( array (
 					'business_number' => $row['businessNo'],
 			) );
-			$query = $this->db->get('transactions2');
+			$query = $this->db->get('mTransportIPN');
 			
 			$amount= $query->row()->mpesa_amt;
 			
