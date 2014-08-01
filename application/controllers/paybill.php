@@ -31,7 +31,7 @@ class Paybill extends CI_Controller {
 				'dest' => $this->input->get ( 'dest' ),
 				'tstamp' => $this->input->get ( 'tstamp' ),
 				'mpesa_code' => $this->input->get ( 'mpesa_code' ),
-				'mpesa_acc' => $this->input->get ( 'mpesa_acc' ),
+				'mpesa_acc' => $this->input->get ( 'business_number' ),
 				'mpesa_msisdn' => $this->input->get ( 'mpesa_msisdn' ),
 				'mpesa_trx_date' => $this->input->get ( 'mpesa_trx_date' ),
 				'mpesa_trx_time' => $this->input->get ( 'mpesa_trx_time' ),
@@ -41,7 +41,7 @@ class Paybill extends CI_Controller {
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
 		
-		if ($user == 'mTransport' && $pass == 'transport@2014') {
+		if ($user == 'pioneerfsa' && $pass == 'financial@2013') {
 			if ($inp ['id']) {
 				$transaction_registration = $this->ezauth->record_transaction ( $inp );
 				echo $transaction_registration;
@@ -49,20 +49,27 @@ class Paybill extends CI_Controller {
 				//Send SMS to Client
 				$tDate = date ("d/m/Y");
 				$tTime = date("h:i A");
-				$vehicleNo = $this->members->getVehicleNo_by_id($inp['business_number']);
-				$message =  "Dear ".$inp['mpesa_sender'].
-							",Your fare of Kshs. ".$inp['mpesa_amt'].
-							" has been received on ".$tDate." at ".$tTime.
-							".Thank-you for travelling with saccoName ( ".$vehicleNo.
-							" ). Customer care no. 0729472421";
+				//$vehicle = $this->members->getVehicleNo_by_id($inp['business_number']);
+				
+
+				$message =  "Dear ".$inp['mpesa_sender'].",Your payment of Kshs. ".$inp['mpesa_amt']." has been received on ".$tDate." at ".$tTime;
+
+				//$message =  "Dear ".$inp['mpesa_sender'].",Your fare of Kshs. ".$inp['mpesa_amt']." has been received on ".$tDate." at ".$tTime.
+				//			".Thanks for travelling with Naekana Sacco( ".$vehicle->VehicleNo." ).";
+
+
+				//$conductorMessage = "Fare of Kshs. ".$inp['mpesa_amt']." has been received from ".$inp['mpesa_sender']." on ".$tDate." at ".$tTime.
+				//					".Proceed to serve the customer.";
 
 				$sms_feedback = $this->corescripts->_send_sms2 (substr( $inp['mpesa_msisdn'], 2 ), $message );
+
 
 				if($sms_feedback){
 					echo ".Sms sent to customer";
 				}else{
 					echo ".SMS not sent to customer";
 				}
+
 				
 			} else {
 				echo "FAIL|No transaction details were sent";

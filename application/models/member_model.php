@@ -35,14 +35,13 @@ class Member_Model extends CI_Model {
 	
 	function getVehicleNo_by_id($businessNo){
 		$this->db->query('Use naekana');
-		$this->db->select('VehicleNo');
 		$this->db->where ( array (
 				'businessNo' => $businessNo,
 				'Blocked'=>0
 		) );
 		$query = $this->db->get('MemberVehicleNo');
 
-		return $query->row()->VehicleNo;
+		return $query->row();
 	}
 	
 	function getVehicles($memberNo){
