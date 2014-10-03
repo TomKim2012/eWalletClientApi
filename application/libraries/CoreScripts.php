@@ -83,7 +83,7 @@ class CoreScripts {
 		
 		// Create an instance of the gateway class
 		$username = "TomKim";
-		$shortCode = "SMSLEOPARD";
+		$shortCode = "PioneerFSA";
 		$apiKey = "1473c117e56c4f2df393c36dda15138a57b277f5683943288c189b966aae83b4";
 		$gateway = new AfricasTalkingGateway ( $username, $apiKey );
 		
@@ -93,27 +93,27 @@ class CoreScripts {
 			 * Bug:: If you put shortcode - It fails completely.
 			 */
 			
-			$results = $gateway->sendMessage ( $recipient, $message );
+			$results = $gateway->sendMessage ( $recipient, $message, $shortCode );
 			
 			// Read in the gateway response and persist if necessary
 			$response = $results [0];
 			$status = $response->status;
 			$cost = $response->cost;
 			
-			//echo $status . " " . $cost;
+			// echo $status . " " . $cost;
 			
 			if ($status = "Success") {
 				return true;
 			} else {
 				return false;
 			}
-			
 		} catch ( AfricasTalkingGatewayException $e ) {
 			// Log the error
 			$errorMessage = $e->getMessage ();
 			return false;
 		}
 	}
+	
 	function saveMiniStatement($clCode, $transactionType, $transactionAmount) {
 		$inp = array (
 				'clCode' => $clCode,

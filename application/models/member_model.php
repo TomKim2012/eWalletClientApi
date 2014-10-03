@@ -3,7 +3,6 @@ defined ( 'BASEPATH' ) or exit ( 'No direct script access allowed' );
 class Member_Model extends CI_Model {
 	function __construct() {
 		parent::__construct ();
-		$this->db->query('Use naekana');
 	}
 	
 	/*
@@ -15,13 +14,6 @@ class Member_Model extends CI_Model {
 				$parameter => $value 
 		) );
 		$query = $this->db->get ( 'MembersDetails' );
-		
-		// print_r($query->result());
-		/* $fullNames = trim ( (isset ( $query->row ()->refno )) ? ($query->row ()->refno) : "N/a" ) . " " .
-				trim ( (isset ( $query->row ()->clname )) ? ($query->row ()->clname) : "N/a" ) . " " .
-				trim ( (isset ( $query->row ()->middlename )) ? ($query->row ()->middlename) : "N/a" ) . " " .
-				trim ( (isset ( $query->row ()->clsurname )) ? ($query->row ()->clsurname) : "N/a" );
-		 */
 			
 		$memberData = array (
 				'firstName' => trim ( (isset ( $query->row ()->Firstname )) ? ($query->row ()->Firstname) : "N/a" ),
@@ -43,6 +35,17 @@ class Member_Model extends CI_Model {
 
 		return $query->row();
 	}
+
+	function getOwner_by_id($businessNo){
+		$query=$this->db->query("select businessName,phoneNo from LipaNaMpesaTills where tillNo='".$businessNo."'");
+		
+		if ($query->num_rows() > 0)
+		{
+			return $query->row_array();
+		}else{
+			return false;
+		}
+	}
 	
 	function getVehicles($memberNo){
 		$this->db->where ( array (
@@ -50,9 +53,6 @@ class Member_Model extends CI_Model {
 				'Blocked'=>0
 		) );
 		$query = $this->db->get('MemberVehicleNo');
-		
-		//echo $this->db->last_query();
-		//print_r($query->result_array());
 		
 		$vehicleList= $query->result_array();
 		

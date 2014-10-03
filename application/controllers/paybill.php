@@ -1,3 +1,4 @@
+
 <?php
 
 defined ( 'BASEPATH' ) or exit ( 'No direct script access allowed' );
@@ -13,16 +14,6 @@ class Paybill extends CI_Controller {
 		$this->load->helper ( 'file' );
 	}
 	function index() {
-		// Log the details
-		$myFile = "application/controllers/mpesalog.txt";
-		$input = $this->input->get ( NULL, TRUE );
-		write_file ( $myFile, "=============================\n", 'a+' );
-		foreach ( $input as $var => $value ) {
-			if (! write_file ( $myFile, "$var = $value\n", 'a+' )) {
-				echo "Unable to write to file!";
-			}
-		}
-		
 		// Get the input details
 		$inp = array (
 				'id' => $this->input->get ( 'id' ),
@@ -41,7 +32,7 @@ class Paybill extends CI_Controller {
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
 		
-		if ($user == 'pioneerfsa' && $pass == 'financial@2013') {
+		if (($user=='pioneerfsa' && $pass == 'financial@2013') ||($user='mTransport' && $pass='transport@2014')){
 			if ($inp ['id']) {
 				$transaction_registration = $this->ezauth->record_transaction ( $inp );
 				echo $transaction_registration;
@@ -49,20 +40,14 @@ class Paybill extends CI_Controller {
 				//Send SMS to Client
 				$tDate = date ("d/m/Y");
 				$tTime = date("h:i A");
-				//$vehicle = $this->members->getVehicleNo_by_id($inp['business_number']);
+				$owner = $this->members->getOwner_by_id($inp['business_number']);
 				
+				//$firstName = $this->getFirstName ( $inp ['mpesa_sender'] ); // JOASH NYADUNDO
+				$message =  "Dear ".trim($owner['businessName']).", transaction ".$inp['mpesa_code'].
+							" of Kshs. ".$inp['mpesa_amt']." received from ".$inp['mpesa_sender'].
+							" on ".$tDate." at ".$tTime. ". New balance ";
 
-				$message =  "Dear ".$inp['mpesa_sender'].",Your payment of Kshs. ".$inp['mpesa_amt']." has been received on ".$tDate." at ".$tTime;
-
-				//$message =  "Dear ".$inp['mpesa_sender'].",Your fare of Kshs. ".$inp['mpesa_amt']." has been received on ".$tDate." at ".$tTime.
-				//			".Thanks for travelling with Naekana Sacco( ".$vehicle->VehicleNo." ).";
-
-
-				//$conductorMessage = "Fare of Kshs. ".$inp['mpesa_amt']." has been received from ".$inp['mpesa_sender']." on ".$tDate." at ".$tTime.
-				//					".Proceed to serve the customer.";
-
-				$sms_feedback = $this->corescripts->_send_sms2 (substr( $inp['mpesa_msisdn'], 2 ), $message );
-
+				$sms_feedback = $this->corescripts->_send_sms2 ($owner['phoneNo'], $message );
 
 				if($sms_feedback){
 					echo ".Sms sent to customer";
@@ -77,6 +62,13 @@ class Paybill extends CI_Controller {
 		} else {
 			echo "FAIL|The payment could not be completed at this time.Incorrect username / password combination. Pioneer FSA";
 		}
+	}
+
+	function getFirstName($names) {
+		$fullNames = explode ( " ", $names );
+		$firstName = $fullNames [0];
+		$customString = substr ( $firstName, 0, 1 ) . strtolower ( substr ( $firstName, 1 ) );
+		return $customString;
 	}
 }
 
