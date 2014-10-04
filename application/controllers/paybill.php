@@ -15,6 +15,7 @@ class Paybill extends CI_Controller {
 		$myFile = "application/controllers/mpesalog.txt";
 		$input = $this->input->get ( NULL, TRUE );
 		write_file ( $myFile, "=============================\n", 'a+' );
+		
 		foreach ( $input as $var => $value ) {
 			if (! write_file ( $myFile, "$var = $value\n", 'a+' )) {
 				echo "Unable to write to file!";
