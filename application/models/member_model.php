@@ -5,23 +5,28 @@ class Member_Model extends CI_Model {
 		parent::__construct ();
 	}
 	
-	/*
-	 * Repetition -Should find a solution to this immediately
-	 */
-	function getSingleMember($parameter, $value) {
+	function getSingleCustomer($parameter, $value) {
 		$this->db->where ( array (
 				$parameter => $value 
 		) );
-		$query = $this->db->get ( 'MembersDetails' );
+		$query = $this->db->get ( 'Client' );
 		
-		$memberData = array (
-				'firstName' => trim ( (isset ( $query->row ()->Firstname )) ? ($query->row ()->Firstname) : "N/a" ),
-				'middleName' => trim ( (isset ( $query->row ()->Middlename )) ? ($query->row ()->Middlename) : "N/a" ),
-				'lastName' => trim ( (isset ( $query->row ()->Othernames )) ? ($query->row ()->Othernames) : "N/a" ),
-				'MemberNo' => trim ( (isset ( $query->row ()->MemberNo )) ? ($query->row ()->MemberNo) : "N/a" ) 
+		// print_r($query->result());
+		$fullNames = trim ( (isset ( $query->row ()->refno )) ? ($query->row ()->refno) : "N/a" ) . " " .
+				trim ( (isset ( $query->row ()->clname )) ? ($query->row ()->clname) : "N/a" ) . " " .
+				trim ( (isset ( $query->row ()->middlename )) ? ($query->row ()->middlename) : "N/a" ) . " " .
+				trim ( (isset ( $query->row ()->clsurname )) ? ($query->row ()->clsurname) : "N/a" );
+			
+		$custData = array (
+				'firstName' => trim ( (isset ( $query->row ()->clname )) ? ($query->row ()->clname) : "N/a" ),
+				'middleName' => trim ( (isset ( $query->row ()->middlename )) ? ($query->row ()->middlename) : "N/a" ),
+				'lastName' => trim ( (isset ( $query->row ()->clsurname )) ? ($query->row ()->clsurname) : "N/a" ),
+				'fullNames' => $fullNames,
+				'refNo' => trim ( (isset ( $query->row ()->refno )) ? ($query->row ()->refno) : "N/a" ),
+				'mobileNo' => trim ( (isset ( $query->row ()->phone )) ? ($query->row ()->phone) : "N/a" ),
+				'customerId' => trim ( (isset ( $query->row ()->clcode )) ? ($query->row ()->clcode) : "N/a" ) 
 		);
-		
-		return $memberData;
+		return $custData;
 	}
 	function getVehicleNo_by_id($businessNo) {
 		$this->db->query ( 'Use naekana' );
@@ -33,8 +38,27 @@ class Member_Model extends CI_Model {
 		
 		return $query->row ();
 	}
+	
+	function getTills($custId){
+		$this->db->query('Use MergeFinals');
+		$query = $this->db->query("select docnum from clientdoc where clientcode='".$custId.
+								   "' AND priority>0");
+	
+		$tillList= $query->result_array();
+	
+		$businessNos=array();
+		foreach ($tillList as $row) {
+			$data=array(
+					'businessNo' => $row['docnum']
+			);
+			array_push($businessNos, $data);
+		}
+		return $businessNos;
+	}
+	
 	function getOwner_by_id($businessNo) {
-		$query = $this->db->query ( "select businessName,phoneNo from LipaNaMpesaTills where tillNo='".$businessNo."'" );
+		$query = $this->db->query ( "select businessName,phoneNo from LipaNaMpesaTills".
+									"where tillNo='".$businessNo."'" );
 		
 		if ($query->num_rows () > 0) {
 			return $query->row_array ();
@@ -55,24 +79,32 @@ class Member_Model extends CI_Model {
 			
 			$amount = $query->row()->mpesa_amt;
 			
-			echo $this->db->last_query();
 			return $amount;
 	}
 	
 	function getTotals($businessNos) {
 		$response = array ();
+		$this->db->query('Use mobileBanking');
+		
 		foreach ( $businessNos as $row ) {
-			$this->db->select_sum ( 'mpesa_amt' );
+			$this->db->select('businessName');
+			$this->db->select_sum ('mpesa_amt');
+			$this->db->from('LipaNaMpesaIPN');
+			$this->db-> join('LipaNaMpesaTills',
+							 'LipaNaMpesaIPN.business_number=LipaNaMpesaTills.tillNo');
 			$this->db->where ( array (
-					'business_number' => $row ['businessNo'] 
+					'business_number' => trim($row ['businessNo'])
 			) );
-			$query = $this->db->get ( 'LipaNaMpesaIPN' );
+			$this->db->group_by("businessName");
 			
-			$amount = $query->row()->mpesa_amt;
+			$query = $this->db->get();
+			//echo $this->db->last_query();
+			
+			$results = $query->row_array();
 			
 			$data = array (
-					'VehicleNo' => $row ['VehicleNo'],
-					'totals' => $amount 
+					'business_name' => $results ['businessName'],
+					'totals' => $results['mpesa_amt'] 
 			);
 			array_push ( $response, $data );
 		}

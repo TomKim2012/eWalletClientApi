@@ -14,6 +14,7 @@ class CoreScripts {
 		$CI = & get_instance ();
 		return $CI;
 	}
+	
 	function updateCustomer($newMobile) {
 		// updating customer Record
 		$cust = array (
@@ -29,12 +30,12 @@ class CoreScripts {
 	}
 	
 	
-	function getTotals($memberNo) {
-		if ($memberNo == "") {
+	function getTotals($clCode) {
+		if ($clCode == "") {
 			return;
 		}
 		
-		$businessNos = $this-> CI()->members->getVehicles($memberNo);
+		$businessNos = $this-> CI()->members->getTills($clCode);
 		$response=$this->CI()->members->getTotals($businessNos);
 		
 		if($response){
@@ -100,7 +101,10 @@ class CoreScripts {
 			$status = $response->status;
 			$cost = $response->cost;
 			
-			// echo $status . " " . $cost;
+			/* 
+			 * Need to persist this
+			 * echo $status . " " . $cost . " >> response:";
+			return $status; */
 			
 			if ($status = "Success") {
 				return true;
