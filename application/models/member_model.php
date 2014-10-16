@@ -28,16 +28,6 @@ class Member_Model extends CI_Model {
 		);
 		return $custData;
 	}
-	function getVehicleNo_by_id($businessNo) {
-		$this->db->query ( 'Use naekana' );
-		$this->db->where ( array (
-				'businessNo' => $businessNo,
-				'Blocked' => 0 
-		) );
-		$query = $this->db->get ( 'MemberVehicleNo' );
-		
-		return $query->row ();
-	}
 	
 	function getTills($custId){
 		$this->db->query('Use MergeFinals');
@@ -58,7 +48,7 @@ class Member_Model extends CI_Model {
 	
 	function getOwner_by_id($businessNo) {
 		$query = $this->db->query ( "select businessName,phoneNo from LipaNaMpesaTills".
-									"where tillNo='".$businessNo."'" );
+									" where tillNo='".$businessNo."'" );
 		
 		if ($query->num_rows () > 0) {
 			return $query->row_array ();
