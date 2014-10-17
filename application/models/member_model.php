@@ -83,7 +83,8 @@ class Member_Model extends CI_Model {
 			$this->db-> join('LipaNaMpesaTills',
 							 'LipaNaMpesaIPN.business_number=LipaNaMpesaTills.tillNo');
 			$this->db->where ( array (
-					'business_number' => trim($row ['businessNo'])
+					'business_number' => trim($row ['businessNo']),
+					'tstamp'=>date ( "Y-m-d" )
 			) );
 			$this->db->group_by("businessName");
 			
