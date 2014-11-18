@@ -40,7 +40,7 @@ class Member_Model extends CI_Model {
 		return $businessNos;
 	}
 	function getOwner_by_id($businessNo) {
-		$query = $this->db->query ( "select businessName,phoneNo from LipaNaMpesaTills" . " where tillNo='" . $businessNo . "'" );
+		$query = $this->db->query ( "select businessName,phoneNo from TillModel" . " where tillNo='" . $businessNo . "'" );
 		
 		if ($query->num_rows () > 0) {
 			return $query->row_array ();
@@ -71,7 +71,7 @@ class Member_Model extends CI_Model {
 			$this->db->select ( 'businessName' );
 			$this->db->select_sum ( 'mpesa_amt' );
 			$this->db->from ( 'LipaNaMpesaIPN' );
-			$this->db->join ( 'LipaNaMpesaTills', 'LipaNaMpesaIPN.business_number=LipaNaMpesaTills.tillNo' );
+			$this->db->join ( 'TillModels', 'LipaNaMpesaIPN.business_number=TillModel.tillNo' );
 			$this->db->where ( array (
 					'business_number' => trim ( $row ['businessNo'] ),
 					'tstamp' => date ( "Y-m-d" ) 
