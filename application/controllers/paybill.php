@@ -40,16 +40,16 @@ class Paybill extends CI_Controller {
 				$tTime = date ( "h:i A" );
 				$till = $this->members->getOwner_by_id ( $inp ['business_number'] );
 				
-				$balance = $this->members->getTillTotal($inp ['business_number']);
+				$balance = $this->members->getTillTotal ( $inp ['business_number'] );
 				
-				$message = "Dear " . trim ( $till ['businessName'] ) . ", transaction " . $inp ['mpesa_code'] .
-							" of Kshs. " . $inp ['mpesa_amt'] . " received from " . $inp ['mpesa_sender'] . 
-							" on " . $tDate . " at " . $tTime . ". New balance is ".$balance;
+				$message = "Dear " . trim ( $till ['businessName'] ) . ", transaction " . $inp ['mpesa_code'] . " of Kshs. " . $inp ['mpesa_amt'] . " received from " . $inp ['mpesa_sender'] . " on " . $tDate . " at " . $tTime . ". New balance is Ksh " . $balance;
+				
 				if ($till ['phoneNo']) {
 					$sms_feedback = $this->corescripts->_send_sms2 ( $till ['phoneNo'], $message );
+					
 					if ($sms_feedback) {
 						echo " and sms sent to customer";
-					}else {
+					} else {
 						echo " sms not sent to customer";
 					}
 				} else {
