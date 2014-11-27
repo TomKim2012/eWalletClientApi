@@ -22,17 +22,22 @@ class Lipasms extends REST_Controller {
 			$phone = $this->get ( "phoneNumber" );
 			$custData = $this->members->getSingleCustomer ( 'phone', $phone );
 			
-			if ($custData ['userId'] == 'N/a') {
-				$message = 'Dear Customer, your number has not been registered as a Merchant.' . 'Kindly contact your nearest branch';
+
+			if (empty($custData ['userId'])) {
+				$message = 'Dear Customer, your phoneNumber is not registered.' . 'Kindly contact your nearest branch';
+				echo $message;
 				$this->corescripts->_send_sms2 ( $phone, $message );
 				return;
 			}
 			
 			$response = $this->corescripts->getTotals ( $custData ['userId'] );
 			
-			// print_r($response);
+			 // print_r($response);
+			 // return;
+			 
 			if (empty ( $response )) {
-				$message = 'Dear Customer, you dont have any registered tills.' . 'Kindly call branch or agent to get one';
+				$message = 'Dear Customer, you dont have any registered tills.' . 'Kindly call branch to be assigned a Till';
+				echo $message;
 				$this->corescripts->_send_sms2 ( $custData ['mobileNo'], $message );
 				return;
 			} else if ($response [0] ['count'] == 0) {
