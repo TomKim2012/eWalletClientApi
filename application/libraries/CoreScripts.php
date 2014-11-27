@@ -30,12 +30,12 @@ class CoreScripts {
 	}
 	
 	
-	function getTotals($clCode) {
-		if ($clCode == "") {
+	function getTotals($userId) {
+		if ($userId == "") {
 			return;
 		}
 		
-		$businessNos = $this-> CI()->members->getTills($clCode);
+		$businessNos = $this-> CI()->members->getTills($userId);
 		$response=$this->CI()->members->getTotals($businessNos);
 		
 		if($response){

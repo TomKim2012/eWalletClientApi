@@ -15,45 +15,48 @@ class Lipasms extends REST_Controller {
 		$this->load->model ( 'Member_Model', 'members' );
 	}
 	function custSms_get() {
-		                                   
+		
 		// Add Balance from the text
-		if ($this->get ( "clCode" )) {
+		if ($this->get ( "phoneNumber" )) {
 			
-			$clCode = $this->get ("clCode");
-			$custData = $this->members->getSingleCustomer ( 'clCode', $clCode );
+			$phone = $this->get ( "phoneNumber" );
+			$custData = $this->members->getSingleCustomer ( 'phone', $phone );
 			
-			$response = $this->corescripts->getTotals($clCode );
-			
-			//print_r($response);
-			if(empty($response)){
-				$message = 'Dear Customer, you dont have any registered tills.'.
-							'Kindly call branch or agent to get one';
-				$this->corescripts->_send_sms2 ( $custData['mobileNo'], $message);
+			if ($custData ['userId'] == 'N/a') {
+				$message = 'Dear Customer, your number has not been registered as a Merchant.' . 'Kindly contact your nearest branch';
+				$this->corescripts->_send_sms2 ( $phone, $message );
 				return;
-			}else if($response[0]['count'] == 0){
-				$message = "Dear " . $custData ['firstName'] . 
-				", There were no Lipa Na Mpesa transactions for your tills today.";
-			}else{
+			}
 			
-			// //---------------Compose the SMS-----------------------------------
-			//$tDate = date ( "d/m/Y" );
-			$tTime = date ( "h:i A" );
-			$message = "Dear " . $custData ['firstName'] . ", Your Lipa Na Mpesa Summary as at ".$tTime . ":";
-			$counter = 1;
-			foreach ( $response as $row ) {
-				$message .= "<" . $counter ++ . "." . $row ['business_name'] . "- KES " .
-				number_format ( $row ['totals'] ) . ">";
+			$response = $this->corescripts->getTotals ( $custData ['userId'] );
+			
+			// print_r($response);
+			if (empty ( $response )) {
+				$message = 'Dear Customer, you dont have any registered tills.' . 'Kindly call branch or agent to get one';
+				$this->corescripts->_send_sms2 ( $custData ['mobileNo'], $message );
+				return;
+			} else if ($response [0] ['count'] == 0) {
+				$message = "Dear " . $custData ['firstName'] . ", There were no Lipa Na Mpesa transactions for your tills today.";
+			} else {
+				
+				// //---------------Compose the SMS-----------------------------------
+				// $tDate = date ( "d/m/Y" );
+				$tTime = date ( "h:i A" );
+				$message = "Dear " . $custData ['firstName'] . ", Today's Lipa Na Mpesa Summary as at " . $tTime . " is as follows:";
+				$counter = 1;
+				foreach ( $response as $row ) {
+					$message .= "<" . $counter ++ . "." . $row ['business_name'] . "- KES " . number_format ( $row ['totals'] ) . ">";
+				}
 			}
-			}
-			//echo $message;
+			echo $message;
 			$sms_feedback = $this->corescripts->_send_sms2 ( $custData['mobileNo'], $message );
 			if ($sms_feedback) {
-				echo "Success";
+			echo "Success";
 			} else {
-				echo "Failed";
+			echo "Failed";
 			}
 		} else {
-			echo 'No client Code sent!';
+			echo 'No phone Number sent';
 		}
 	}
 }

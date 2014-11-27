@@ -8,32 +8,31 @@ class Member_Model extends CI_Model {
 		$this->db->where ( array (
 				$parameter => $value 
 		) );
-		$query = $this->db->get ( 'Client' );
+		$query = $this->db->get ( 'BUser' );
 		
 		// print_r($query->result());
-		$fullNames = trim ( (isset ( $query->row ()->refno )) ? ($query->row ()->refno) : "N/a" ) . " " . trim ( (isset ( $query->row ()->clname )) ? ($query->row ()->clname) : "N/a" ) . " " . trim ( (isset ( $query->row ()->middlename )) ? ($query->row ()->middlename) : "N/a" ) . " " . trim ( (isset ( $query->row ()->clsurname )) ? ($query->row ()->clsurname) : "N/a" );
+		$fullNames = trim ( (isset ( $query->row ()->firstName )) ? ($query->row ()->firstName) : "N/a" ) . " " . trim ( (isset ( $query->row ()->lastName )) ? ($query->row ()->lastName) : "N/a" );
 		
 		$custData = array (
-				'firstName' => trim ( (isset ( $query->row ()->clname )) ? ($query->row ()->clname) : "N/a" ),
-				'middleName' => trim ( (isset ( $query->row ()->middlename )) ? ($query->row ()->middlename) : "N/a" ),
-				'lastName' => trim ( (isset ( $query->row ()->clsurname )) ? ($query->row ()->clsurname) : "N/a" ),
+				'firstName' => trim ( (isset ( $query->row ()->firstName )) ? ($query->row ()->firstName) : "N/a" ),
+				'lastName' => trim ( (isset ( $query->row ()->lastName )) ? ($query->row ()->lastName) : "N/a" ),
 				'fullNames' => $fullNames,
-				'refNo' => trim ( (isset ( $query->row ()->refno )) ? ($query->row ()->refno) : "N/a" ),
 				'mobileNo' => trim ( (isset ( $query->row ()->phone )) ? ($query->row ()->phone) : "N/a" ),
-				'customerId' => trim ( (isset ( $query->row ()->clcode )) ? ($query->row ()->clcode) : "N/a" ) 
+				'linkCode' => trim ( (isset ( $query->row ()->linkCode )) ? ($query->row ()->linkCode) : "N/a" ),
+				'userId' => trim ( (isset ( $query->row ()->userId )) ? ($query->row ()->userId) : "N/a" ) 
 		);
 		return $custData;
 	}
-	function getTills($custId) {
-		$this->db->query ( 'Use MergeFinals' );
-		$query = $this->db->query ( "select docnum from clientdoc where clientcode='" . $custId . "' AND priority>0" );
+	function getTills($ownerId) {
+		$query = $this->db->query ( "select tillNo,businessName from tillModel where ownerId='" . $ownerId . "'" );
 		
 		$tillList = $query->result_array ();
 		
 		$businessNos = array ();
 		foreach ( $tillList as $row ) {
 			$data = array (
-					'businessNo' => $row ['docnum'] 
+					'businessNo' => $row ['tillNo'],
+					'businessName' => $row['businessName']
 			);
 			array_push ( $businessNos, $data );
 		}
@@ -55,36 +54,34 @@ class Member_Model extends CI_Model {
 		$this->db->select_sum ( 'mpesa_amt' );
 		$this->db->where ( array (
 				'business_number' => $businessNo,
-				'mpesa_trx_date' => date ("d/m/y" ) 
+				'mpesa_trx_date' => date ( "d/m/y" ) 
 		) );
 		$query = $this->db->get ( 'LipaNaMpesaIPN' );
 		$amount = $query->row ()->mpesa_amt;
-
-		return number_format($amount);
+		
+		return number_format ( $amount );
 	}
-	
 	function getTotals($businessNos) {
 		$response = array ();
 		$this->db->query ( 'Use mobileBanking' );
 		
 		foreach ( $businessNos as $row ) {
-			$this->db->select ( 'businessName' );
 			$this->db->select_sum ( 'mpesa_amt' );
 			$this->db->from ( 'LipaNaMpesaIPN' );
 			$this->db->join ( 'TillModel', 'LipaNaMpesaIPN.business_number=TillModel.tillNo' );
 			$this->db->where ( array (
 					'business_number' => trim ( $row ['businessNo'] ),
-					'mpesa_trx_date' => date ("d/m/y" ) 
+					'mpesa_trx_date' => date ( "d/m/y" ) 
 			) );
 			$this->db->group_by ( "businessName" );
 			
 			$query = $this->db->get ();
 			
-			//echo $this->db->last_query ();
+// 			echo $this->db->last_query ();
 			$results = $query->row_array ();
 			
 			$data = array (
-					'business_name' => $results ['businessName'],
+					'business_name' => $row['businessName'],
 					'totals' => $results ['mpesa_amt'],
 					'count' => $query->num_rows () 
 			);
