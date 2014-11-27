@@ -71,10 +71,10 @@ class Member_Model extends CI_Model {
 			$this->db->select ( 'businessName' );
 			$this->db->select_sum ( 'mpesa_amt' );
 			$this->db->from ( 'LipaNaMpesaIPN' );
-			$this->db->join ( 'TillModels', 'LipaNaMpesaIPN.business_number=TillModel.tillNo' );
+			$this->db->join ( 'TillModel', 'LipaNaMpesaIPN.business_number=TillModel.tillNo' );
 			$this->db->where ( array (
 					'business_number' => trim ( $row ['businessNo'] ),
-					'tstamp' => date ( "Y-m-d" ) 
+					'mpesa_trx_date' => date ("d/m/y" ) 
 			) );
 			$this->db->group_by ( "businessName" );
 			

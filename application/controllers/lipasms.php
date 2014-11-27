@@ -31,7 +31,8 @@ class Lipasms extends REST_Controller {
 				$this->corescripts->_send_sms2 ( $custData['mobileNo'], $message);
 				return;
 			}else if($response[0]['count'] == 0){
-				$message = "Dear " . $custData ['firstName'] . ", There were no Lipa Na Mpesa transactions today.";
+				$message = "Dear " . $custData ['firstName'] . 
+				", There were no Lipa Na Mpesa transactions for your tills today.";
 			}else{
 			
 			// //---------------Compose the SMS-----------------------------------
