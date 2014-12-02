@@ -32,7 +32,7 @@ class Member_Model extends CI_Model {
 		foreach ( $tillList as $row ) {
 			$data = array (
 					'businessNo' => $row ['tillNo'],
-					'businessName' => $row['businessName']
+					'businessName' => $row ['businessName'] 
 			);
 			array_push ( $businessNos, $data );
 		}
@@ -54,10 +54,12 @@ class Member_Model extends CI_Model {
 		$this->db->select_sum ( 'mpesa_amt' );
 		$this->db->where ( array (
 				'business_number' => $businessNo,
-				'mpesa_trx_date' => date ( "d/m/y" ) 
+				'mpesa_trx_date' => date ( "j/m/y" ) 
 		) );
 		$query = $this->db->get ( 'LipaNaMpesaIPN' );
 		$amount = $query->row ()->mpesa_amt;
+		
+		// echo $this->db->last_query();
 		
 		return number_format ( $amount );
 	}
@@ -77,11 +79,11 @@ class Member_Model extends CI_Model {
 			
 			$query = $this->db->get ();
 			
-// 			echo $this->db->last_query ();
+			// echo $this->db->last_query ();
 			$results = $query->row_array ();
 			
 			$data = array (
-					'business_name' => $row['businessName'],
+					'business_name' => $row ['businessName'],
 					'totals' => $results ['mpesa_amt'],
 					'count' => $query->num_rows () 
 			);
