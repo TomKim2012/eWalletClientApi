@@ -25,7 +25,8 @@ class Paybill extends CI_Controller {
 				'mpesa_trx_date' => $this->input->get ( 'mpesa_trx_date' ),
 				'mpesa_trx_time' => $this->input->get ( 'mpesa_trx_time' ),
 				'mpesa_amt' => $this->input->get ( 'mpesa_amt' ),
-				'mpesa_sender' => $this->input->get ( 'mpesa_sender' ) 
+				'mpesa_sender' => $this->input->get ( 'mpesa_sender' ),
+				'ipAddress' =>  $this->input->ip_address()
 		);
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
