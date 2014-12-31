@@ -5,14 +5,14 @@ class Paybill_model extends CI_Model {
 		
 		// Validate IP:
 		if ($this->validateIP ( $input ['ipAddress'] )) {
-			$input['isApproved'] = true;
-		}else{
-			$input['isApproved']=false;
+			$input ['isApproved'] = true;
+		} else {
+			$input ['isApproved'] = false;
 		}
 		$query = $this->db->insert ( 'LipaNaMpesaIPN', $input );
 		if ($query) {
 			return "OK|Thankyou, IPN has been successfully been saved.";
-		}else{
+		} else {
 			return "Fail | Something went wrong while performing the query";
 		}
 	}
@@ -20,15 +20,36 @@ class Paybill_model extends CI_Model {
 		$this->db->where ( array (
 				'SettingKey' => 'IPNServer' 
 		) );
-		$query = $this->db->get ('SettingModel' );
+		$query = $this->db->get ( 'SettingModel' );
 		
 		if ($query->num_rows () > 0) {
 			if ($query->row ()->SettingValue == $ipAddress) {
 				return true;
 			}
 		} else {
-			echo "No Valide IPNserverURL set in the database";
+			echo "No Valide IPN serverURL set in the database";
 			return false;
+		}
+	}
+	function insertSmsLog($input) {
+		$query = $this->db->insert ( 'smsModel', $input );
+		
+		if ($query) {
+			return "Success|Sms Logged into database";
+		} else {
+			return "Fail | Fail to Log sms into db";
+		}
+	}
+	function updateLog($messageId, $status) {
+		$updates = array (
+				'status' => $status 
+		);
+		$this->db->where ( 'messageId', $messageId );
+		$query = $this->db->update ( 'smsModel', $updates );
+		if ($query) {
+			echo "updated sms Log";
+		} else {
+			echo "Failed to update sms Log";
 		}
 	}
 }
