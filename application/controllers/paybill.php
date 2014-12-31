@@ -58,7 +58,7 @@ class Paybill extends CI_Controller {
 					//Persist sms Log
 					$smsInput['transactionId'] = $inp['mpesa_code'];
 					$smsInput['tstamp'] = date("Y-m-d G:i");
-					//$this->transaction->insertSmsLog($smsInput);
+					$this->transaction->insertSmsLog($smsInput);
 					
 					if ($smsInput['status']) {
 						echo " and sms sent to customer";
