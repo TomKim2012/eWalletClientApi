@@ -33,13 +33,25 @@ class Paybill_model extends CI_Model {
 	}
 	function insertSmsLog($input) {
 		$query = $this->db->insert ( 'smsModel', $input );
-		
+		$smsLogId = $this->db->insert_id();
+		$this->updateTransactionRecord($smsLogId, $input['transactionId']);
+
 		if ($query) {
 			return "Success|Sms Logged into database";
 		} else {
 			return "Fail | Fail to Log sms into db";
 		}
 	}
+	
+	function updateTransactionRecord($smsLogId,$transactionId){
+		$updates = array (
+				'smsStatus_FK' => $smsLogId
+		);
+		$this->db->where ( 'mpesa_code', $transactionId );
+		$query = $this->db->update ( 'LipaNaMpesaIPN', $updates );
+		echo "records updated";
+	}
+	
 	function updateLog($messageId, $status) {
 		$updates = array (
 				'status' => $status 

@@ -10,7 +10,6 @@ class Member_Model extends CI_Model {
 		) );
 		$query = $this->db->get ( 'BUser' );
 		
-
 		// echo $this->db->last_query();
 		// print_r($query->result());
 		$fullNames = trim ( (isset ( $query->row ()->firstName )) ? ($query->row ()->firstName) : "N/a" ) . " " . trim ( (isset ( $query->row ()->lastName )) ? ($query->row ()->lastName) : "N/a" );
@@ -21,7 +20,7 @@ class Member_Model extends CI_Model {
 				'fullNames' => $fullNames,
 				'mobileNo' => trim ( (isset ( $query->row ()->phone )) ? ($query->row ()->phone) : "N/a" ),
 				'linkCode' => trim ( (isset ( $query->row ()->linkCode )) ? ($query->row ()->linkCode) : "N/a" ),
-				'userId' => trim ((isset ( $query->row ()->userId )) ? ($query->row ()->userId) : "" )
+				'userId' => trim ( (isset ( $query->row ()->userId )) ? ($query->row ()->userId) : "" ) 
 		);
 		return $custData;
 	}
@@ -29,8 +28,8 @@ class Member_Model extends CI_Model {
 		$query = $this->db->query ( "select tillNo,businessName from tillModel where ownerId='" . $ownerId . "'" );
 		
 		$tillList = $query->result_array ();
-
-		//echo $this->db->last_query();
+		
+		// echo $this->db->last_query();
 		
 		$businessNos = array ();
 		foreach ( $tillList as $row ) {
@@ -58,7 +57,7 @@ class Member_Model extends CI_Model {
 		$this->db->select_sum ( 'mpesa_amt' );
 		$this->db->where ( array (
 				'business_number' => $businessNo,
-				'mpesa_trx_date' => date ( "j/m/y" ) 
+				'mpesa_trx_date' => date ( "j/n/y" ) 
 		) );
 		$query = $this->db->get ( 'LipaNaMpesaIPN' );
 		$amount = $query->row ()->mpesa_amt;

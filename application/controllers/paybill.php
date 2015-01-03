@@ -25,20 +25,22 @@ class Paybill extends CI_Controller {
 				'mpesa_trx_time' => $this->input->get ( 'mpesa_trx_time' ),
 				'mpesa_amt' => $this->input->get ( 'mpesa_amt' ),
 				'mpesa_sender' => $this->input->get ( 'mpesa_sender' ),
-				'ipAddress' =>  $this->input->ip_address()
+				'ipAddress' => $this->input->ip_address () 
 		);
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
 		
-		/** Hard-Code For Paybill:510513
+		/**
+		 * Hard-Code For Paybill:510513
 		 * Business Number is equal to account number;
-		 * */
+		 */
 		if ($inp ['business_number'] == '510513') {
 			$inp ['business_number'] = $inp ['mpesa_acc'];
+		} else {
+			$inp ['mpesa_acc'] = $inp ['business_number'];
 		}
 		
-		if (($user == 'pioneerfsa' && $pass == 'financial@2013') ||
-				 ($user = 'mTransport' && $pass = 'transport@2014')) {
+		if (($user == 'pioneerfsa' && $pass == 'financial@2013') || ($user = 'mTransport' && $pass = 'transport@2014')) {
 			if ($inp ['id']) {
 				$transaction_registration = $this->transaction->record_transaction ( $inp );
 				echo $transaction_registration;
@@ -55,12 +57,14 @@ class Paybill extends CI_Controller {
 				if ($till ['phoneNo']) {
 					$smsInput = $this->corescripts->_send_sms2 ( $till ['phoneNo'], $message );
 					
-					//Persist sms Log
-					$smsInput['transactionId'] = $inp['mpesa_code'];
-					$smsInput['tstamp'] = date("Y-m-d G:i");
-					$this->transaction->insertSmsLog($smsInput);
+					// Persist sms Log
+					$smsInput ['transactionId'] = $inp ['mpesa_code'];
+					$smsInput ['tstamp'] = date ( "Y-m-d G:i" );
+					$smsInput ['message'] = $message;
+					$smsInput ['destination'] = $till ['phoneNo'];
+					$this->transaction->insertSmsLog ( $smsInput );
 					
-					if ($smsInput['status']) {
+					if ($smsInput ['status']) {
 						echo " and sms sent to customer";
 					} else {
 						echo " sms not sent to customer";
@@ -81,12 +85,11 @@ class Paybill extends CI_Controller {
 		$customString = substr ( $firstName, 0, 1 ) . strtolower ( substr ( $firstName, 1 ) );
 		return $customString;
 	}
-	
-	function deliveryCallBack(){
+	function deliveryCallBack() {
 		$messageId = $this->input->get ( 'messageId' );
-		$status = $this -> input ->get('status');
+		$status = $this->input->get ( 'status' );
 		
-		$this->transaction-> updateLog($messageId, $status);
+		$this->transaction->updateLog ( $messageId, $status );
 	}
 }
 
