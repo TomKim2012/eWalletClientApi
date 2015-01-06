@@ -99,7 +99,7 @@ class CoreScripts {
 			$messageId = $response->messageId;
 			
 			$input = array (
-					'status' => $status,
+					'status' => isset($status)?$status:"Failed",
 					'cost' => substr ( $cost, 3 ),
 					'destination' => $recipient,
 					'message' => $message,
@@ -109,6 +109,7 @@ class CoreScripts {
 		} catch ( AfricasTalkingGatewayException $e ) {
 			// Log the error
 			$errorMessage = $e->getMessage ();
+			echo $errorMessage;
 			return false;
 		}
 	}
