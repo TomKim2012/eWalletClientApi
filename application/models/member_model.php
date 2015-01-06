@@ -58,7 +58,7 @@ class Member_Model extends CI_Model {
 		$this->db->select_sum ( 'mpesa_amt' );
 		$this->db->where ( array (
 				'business_number' => $businessNo,
-				'mpesa_trx_date' => date ( "j/m/y" ) 
+				'mpesa_trx_date' => date ( "j/n/y" ) 
 		) );
 		$query = $this->db->get ( 'LipaNaMpesaIPN' );
 		$amount = $query->row ()->mpesa_amt;

@@ -35,6 +35,8 @@ class Paybill extends CI_Controller {
 		 * */
 		if ($inp ['business_number'] == '510513') {
 			$inp ['business_number'] = $inp ['mpesa_acc'];
+		}else {
+			$inp ['mpesa_acc'] = $inp ['business_number'];
 		}
 		
 		if (($user == 'pioneerfsa' && $pass == 'financial@2013') ||
