@@ -86,8 +86,8 @@ class Paybill extends CI_Controller {
 		return $customString;
 	}
 	function deliveryCallBack() {
-		$messageId = $this->input->get ( 'messageId' );
-		$status = $this->input->get ( 'status' );
+		$messageId = $this->input->post ( 'id' );
+		$status = $this->input->post ( 'status' );
 		
 		$this->transaction->updateLog ( $messageId, $status );
 	}
