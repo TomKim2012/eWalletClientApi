@@ -9,7 +9,15 @@ class Paybill_model extends CI_Model {
 		} else {
 			$input ['isApproved'] = false;
 		}
-		$query = $this->db->insert ( 'LipaNaMpesaIPN', $input );
+		
+
+		//Temporary Code for my clients before getting server
+		if(($input['business_number']=='885850')||($input['business_number']=='354750')){
+			$query = $this->db->insert ( 'TemporaryIPN', $input );
+		}else{
+			$query = $this->db->insert ( 'LipaNaMpesaIPN', $input );
+		}
+		
 		if ($query) {
 			return "OK|Thankyou, IPN has been successfully been saved.";
 		} else {

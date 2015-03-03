@@ -34,11 +34,11 @@ class Paybill extends CI_Controller {
 		 * Hard-Code For Paybill:510513
 		 * Business Number is equal to account number;
 		 */
-		if ($inp ['business_number'] == '510513') {
+		/*if ($inp ['business_number'] == '510513' || $inp ['business_number'] == '510512') {
 			$inp ['business_number'] = $inp ['mpesa_acc'];
-		} else {
+		} else {*/
 			$inp ['mpesa_acc'] = $inp ['business_number'];
-		}
+		//}
 		
 		if (($user == 'pioneerfsa' && $pass == 'financial@2013') || ($user = 'mTransport' && $pass = 'transport@2014')) {
 			if ($inp ['id']) {
@@ -88,7 +88,17 @@ class Paybill extends CI_Controller {
 	function deliveryCallBack() {
 		$messageId = $this->input->post ( 'id' );
 		$status = $this->input->post ( 'status' );
-		
+
+		// Log the details
+		// $myFile = "application/controllers/deliverylog.txt";
+		// $input = $this->input->post(NULL, TRUE);
+		// write_file ( $myFile, "=============================\n", 'a+' );
+		// foreach ( $input as $var => $value ) {
+		// 	if (! write_file ( $myFile, "$var = $value\n", 'a+' )) {
+		// 		echo "Unable to write to file!";
+		// 	}
+		// }
+
 		$this->transaction->updateLog ( $messageId, $status );
 	}
 }

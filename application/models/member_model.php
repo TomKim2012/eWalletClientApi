@@ -42,8 +42,8 @@ class Member_Model extends CI_Model {
 		return $businessNos;
 	}
 	function getOwner_by_id($businessNo) {
-		$query = $this->db->query ( "select businessName,phoneNo from TillModel" . " where tillNo='" . $businessNo . "'" );
-		
+		$query = $this->db->query ( "select businessName,phoneNo from TillModel" . " where business_number='" . $businessNo . "'" );
+
 		if ($query->num_rows () > 0) {
 			return $query->row_array ();
 		} else {
