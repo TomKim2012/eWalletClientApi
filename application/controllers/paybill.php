@@ -76,7 +76,9 @@ class Paybill extends CI_Controller {
 				$till = $this->members->getOwner_by_id ( $inp ['business_number'] );
 				$balance = $this->members->getTillTotal ( $inp ['business_number'] );
 				
-				$message = "Dear " . trim ( $till ['businessName'] ) . ", transaction " . $inp ['mpesa_code'] . " of Kshs. " . number_format ( $inp ['mpesa_amt'] ) . " received from " . $inp ['mpesa_sender'] . " on " . $tDate . " at " . $tTime . ". New Till balance is Ksh " . $balance;
+				$message = "Dear " . $this->truncateString( $till ['businessName'] ) . ", transaction " . $inp ['mpesa_code'] . " of Kshs. " 
+						. number_format ( $inp ['mpesa_amt'] ) . " received from " . $this->truncateString($inp ['mpesa_sender']) 
+						. " on " . $tDate . " at " . $tTime . ". New Till balance is Ksh " . $balance;
 				
 				// echo $message;
 				if ($till ['phoneNo']) {
@@ -87,6 +89,7 @@ class Paybill extends CI_Controller {
 					$smsInput ['tstamp'] = date ( "Y-m-d G:i" );
 					$smsInput ['message'] = $message;
 					$smsInput ['destination'] = $till ['phoneNo'];
+					
 					$this->transaction->insertSmsLog ( $smsInput );
 					
 					if ($smsInput ['status']) {
@@ -109,6 +112,13 @@ class Paybill extends CI_Controller {
 		$firstName = $fullNames [0];
 		$customString = substr ( $firstName, 0, 1 ) . strtolower ( substr ( $firstName, 1 ) );
 		return $customString;
+	}
+	
+	function truncateString($content){
+		if (strlen ( $names ) > 15) {
+			$truncated = substr ( $names, 0, 15 ) . "** ";
+		}
+		return $truncated;
 	}
 	function deliveryCallBack() {
 		$messageId = $this->input->post ( 'id' );
