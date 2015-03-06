@@ -27,6 +27,21 @@ class Paybill extends CI_Controller {
 				'mpesa_sender' => $this->input->get ( 'mpesa_sender' ),
 				'ipAddress' => $this->input->ip_address () 
 		);
+
+		$params = array (
+					'id' => $this->input->get ( 'id' ),
+					'business_number' => $this->input->get ( 'business_number' ),
+					'orig' => $this->input->get ( 'orig' ),
+					'dest' => $this->input->get ( 'dest' ),
+					'tstamp' => $this->input->get ( 'tstamp' ),
+					'mpesa_code' => $this->input->get ( 'mpesa_code' ),
+					'mpesa_acc' => $this->input->get ( 'mpesa_acc' ),
+					'mpesa_msisdn' => $this->input->get ( 'mpesa_msisdn' ),
+					'mpesa_trx_date' => $this->input->get ( 'mpesa_trx_date' ),
+					'mpesa_trx_time' => $this->input->get ( 'mpesa_trx_time' ),
+					'mpesa_amt' => $this->input->get ( 'mpesa_amt' ),
+					'mpesa_sender' => $this->input->get ( 'mpesa_sender' )
+				);
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
 		
@@ -43,6 +58,16 @@ class Paybill extends CI_Controller {
 		if (($user == 'pioneerfsa' && $pass == 'financial@2013') || ($user = 'mTransport' && $pass = 'transport@2014')) {
 			if ($inp ['id']) {
 				$transaction_registration = $this->transaction->record_transaction ( $inp );
+				$getipnaddress = $this->transaction->getipnaddress ($inp ['business_number']);
+				
+
+				for($x=0;$x<4;$x++){
+					$ipnstatus = $this->httpPost($getipnaddress,$params,$x + 1);
+					if($ipnstatus){
+						$x = 4;
+					}
+				}
+
 				echo $transaction_registration;
 				
 				// Send SMS to Client
@@ -91,6 +116,96 @@ class Paybill extends CI_Controller {
 		
 		$this->transaction->updateLog ( $messageId, $status );
 	}
+
+	function httpPost($getipndetails,$params,$attempt)
+	{
+		$url = $getipndetails->ipn_address;
+		$ipn_id = $getipndetails->till_model_id;
+		$username = $getipndetails->username;
+		$password = $getipndetails->password;
+
+		//username and password in params
+		$params['user'] = $username;
+		$params['pass'] = $password;
+	    
+	    $postData = '';
+	   //create name value pairs seperated by &
+	   foreach($params as $k => $v) 
+	   { 
+	      $postData .= $k . '='.$v.'&'; 
+	   }
+	    rtrim($postData, '&');
+	  
+	    $postData = str_replace ( ' ', '%20', $postData);
+
+	   // echo $url.'?'. $postData;
+	 	
+	    $ch = curl_init();  	 
+	    curl_setopt($ch,CURLOPT_URL,$url.'?'. $postData);
+	    curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+	   // curl_setopt($ch,CURLOPT_HEADER, true);
+	   // curl_setopt($ch, CURLOPT_HTTPGET,true);
+	    curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	   //  curl_setopt($ch, CURLOPT_POST, count($postData));
+	   // curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);   
+	   // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET'); 
+	 
+	    $response=curl_exec($ch);
+
+	    if(!curl_errno($ch))
+	    {
+	        
+	    	$info = curl_getinfo($ch);
+	        $http_status = $info['http_code'];
+	        if($info['http_code'] == 0){
+	        	$desc = $response;
+	        	$status = "Failed";
+	        }else{
+	        $desc = $response;
+	        $status = "Successful";
+	    	}
+	    }
+	    else
+	    {
+	    	
+	    	$info = curl_getinfo($ch);
+	        $http_status = curl_errno($ch);
+	        $desc = curl_error($ch);
+	        $status = "Not Successful";
+	       
+	    }
+
+	    $inplog = array (
+				'ipn_id' => $ipn_id,
+				'status' => $status,
+				'description' => $desc,
+				'http_status' => $http_status,
+				'attempt' => $attempt 
+		);
+
+		curl_close($ch);
+	   
+
+	    if($this->transaction->inseripnlog ($inplog)){
+	    	if($http_status == 200){
+	    		return true;
+	    	}else{
+	    		if($attempt == 4){
+	    			return true;
+	    		}else{
+	    			return false;
+	    		}
+	    		
+	    	}
+	    	
+	    }
+	    else{
+	    	return false;
+	    }
+	 
+	}
+
+	
 }
 
 ?>
