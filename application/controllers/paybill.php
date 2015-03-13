@@ -29,16 +29,31 @@ class Paybill extends CI_Controller {
 		);
 		$user = $this->input->get ( 'user' );
 		$pass = $this->input->get ( 'pass' );
+
 		
 		/**
-		 * Hard-Code For Paybill:510513
-		 * Business Number is equal to account number;
+		 * Hard-Code For Paybill:510513() and 510512(Pioneer Shares)
+		 * Paybill Transactions
 		 */
-		/*if ($inp ['business_number'] == '510513' || $inp ['business_number'] == '510512') {
-			$inp ['business_number'] = $inp ['mpesa_acc'];
-		} else {*/
-			$inp ['mpesa_acc'] = $inp ['business_number'];
-		//}
+		if ($inp ['business_number'] == '510513' || $inp ['business_number'] == '510512') {
+			$firstName = $this->getFirstName ( $inp ['mpesa_sender'] ); // JOASH NYADUNDO
+			$phoneNumber = $this->format_number ( $inp ['mpesa_msisdn'] );
+
+			//Send message to customer who deposited.
+			$message ="Dear ". $firstName .", MPESA deposit of ". $inp['mpesa_amt'].
+					" confirmed. Invest as low as Ksh 5000 in our fixed deposit ".
+					"or real estate fund and get upto 18% guaranteed returns.";
+			$sms_feedback = $this->corescripts->_send_sms2 ($phoneNumber, $message);
+
+		} else {
+			/*Should be sorted asap
+			 we are making account number to be the same as business number;
+
+			*/
+
+			$inp['mpesa_acc']=$inp['business_number'];
+			//$inp ['mpesa_acc'] = 'N/A';
+		}
 		
 		if (($user == 'pioneerfsa' && $pass == 'financial@2013') || ($user = 'mTransport' && $pass = 'transport@2014')) {
 			if ($inp ['id']) {
@@ -90,24 +105,23 @@ class Paybill extends CI_Controller {
 	}
 	
 	function truncateString($content){
-		if (strlen ( $names ) > 15) {
-			$truncated = substr ( $names, 0, 15 ) . "** ";
+		$truncated="";
+		if (strlen ( $content ) > 15) {
+			$truncated = substr ( $content, 0, 15 ) . "** ";
+		}else{
+			$truncated=$content;
 		}
 		return $truncated;
 	}
+
+	function format_Number($phoneNumber) {
+		$formatedNumber = "0" . substr ( $phoneNumber, 3 );
+		return $formatedNumber;
+	}
+
 	function deliveryCallBack() {
 		$messageId = $this->input->post ( 'id' );
 		$status = $this->input->post ( 'status' );
-
-		// Log the details
-		// $myFile = "application/controllers/deliverylog.txt";
-		// $input = $this->input->post(NULL, TRUE);
-		// write_file ( $myFile, "=============================\n", 'a+' );
-		// foreach ( $input as $var => $value ) {
-		// 	if (! write_file ( $myFile, "$var = $value\n", 'a+' )) {
-		// 		echo "Unable to write to file!";
-		// 	}
-		// }
 
 		$this->transaction->updateLog ( $messageId, $status );
 	}
