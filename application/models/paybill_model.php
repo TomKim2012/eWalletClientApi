@@ -72,5 +72,39 @@ class Paybill_model extends CI_Model {
 			echo "Failed to update sms Log";
 		}
 	}
+
+	function getipnaddress($tillno) {
+		$this->db->query ( 'Use mobileBanking' );
+
+		$this->db->select('ipn_address,till_model_id,username,password');
+		$this->db->from('IPN_details');
+		$this->db->join('TillModel','TillModel.id = IPN_details.till_model_id','INNER');
+		$this->db->where('tillNo', $tillno);
+		$query = $this->db->get();
+		
+		if ($query->num_rows () > 0) {
+
+			return $query->row();
+
+		} else {
+			
+			return false;
+		}
+
+	}
+
+	function inseripnlog($ipnlog) {
+		$this->db->query ( 'Use mobileBanking' );
+
+		$query = $this->db->insert ( 'IPN_logs', $ipnlog );
+	
+
+		if ($query) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
 }
 ?>
